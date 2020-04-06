@@ -21,5 +21,11 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files\shot_detection</Filter>
     </ClCompile>
+    <ClCompile Include="FrameComparer.cpp">
+      <Filter>Source Files\shot_detection</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoShotDescriptor.cpp">
+      <Filter>Source Files\shot_detection</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
