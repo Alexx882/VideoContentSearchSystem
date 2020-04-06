@@ -8,6 +8,30 @@ using namespace std;
 namespace fs = std::filesystem;
 using namespace cv;
 
+// Returns a 64-bin color histogram with mask 00bbggrr
+Mat getHistogramFromFrame(Mat input)
+{
+	const int histSize = 64;
+	const int channelPixels = input.rows * input.cols * input.channels();
+	
+	vector<float> hist(histSize);
+	for (int i = 0; i < histSize; ++i)
+		hist[i] = 0;
+
+	uchar b, g, r;
+	uchar* p = input.ptr<uchar>(0);
+	for (int j = 0; j < channelPixels; )
+	{
+		b = (p[j++] & 0xC0) >> 2;
+		g = (p[j++] & 0xC0) >> 4;
+		r = (p[j++] & 0xC0) >> 6;
+
+		hist[b | g | r]++;
+	}
+
+	return Mat(hist);
+}
+
 int main(int argc, char** argv)
 {
 	if (argc < 2)
@@ -16,22 +40,18 @@ int main(int argc, char** argv)
 		exit(0);
 	}
 
-	cout << "Current path is " << fs::current_path() << endl;
-	cout << "file to read: " << argv[1] << endl;
-
 	VideoCapture cap = VideoCapture(argv[1]);
-	cout << "Video " << argv[1] << " has " << cap.get(CAP_PROP_FPS) << " fps" << endl;
 
 	Mat frame;
-	int waitTime = 1000 / cap.get(CAP_PROP_FPS);
-
+	Mat curHist = Mat(), prevHist = Mat();
+	
 	int count = 0;
 	while (cap.read(frame))
 	{
+		prevHist = curHist;
+		curHist = getHistogramFromFrame(frame);
+		
 		cout << "Frame " << ++count << endl;
-		imshow("Video", frame);
-		int key = waitKey(waitTime); //0
-		if (key == 'q') break;
 	}
 
 	return 0;
