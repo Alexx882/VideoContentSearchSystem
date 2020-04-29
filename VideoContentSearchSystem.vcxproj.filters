@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -16,6 +16,9 @@
     <Filter Include="Source Files\shot_detection">
       <UniqueIdentifier>{e00f0dab-eaea-4eef-a8a6-7a9d875aaf9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\keyframe_clustering">
+      <UniqueIdentifier>{518da536-ee1a-4061-8249-ec1d3976fe5d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FrameComparer.cpp">
@@ -30,8 +33,14 @@
     <ClCompile Include="main1.cpp">
       <Filter>Source Files\shot_detection</Filter>
     </ClCompile>
+    <ClCompile Include="main2.cpp">
+      <Filter>Source Files\keyframe_clustering</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyframe.cpp">
+      <Filter>Source Files\keyframe_clustering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -39,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="main1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
