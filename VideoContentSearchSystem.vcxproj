@@ -145,11 +145,13 @@
   <ItemGroup>
     <ClCompile Include="ContentDescriptorsUtilities.cpp" />
     <ClCompile Include="FrameComparer.cpp" />
-    <ClCompile Include="VideoShotDescriptor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="VideoShotDescriptor.cpp" />
+    <ClCompile Include="main1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContentDescriptorsUtilities.h" />
+    <ClInclude Include="main1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
