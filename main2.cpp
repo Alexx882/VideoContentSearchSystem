@@ -1,9 +1,8 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <opencv2/opencv.hpp>
-#include <opencv2/video.hpp>
-#include <opencv2/imgproc.hpp>
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <filesystem>
 
 #include "Keyframe.cpp"
@@ -13,28 +12,10 @@ using namespace std;
 namespace fs = std::filesystem;
 using namespace cv;
 
-struct DistanceInfo
-{
-	Keyframe* frame1;
-	Keyframe* frame2;
-	double distance;
+const string PATH = "./everest1s/highkey/";
 
-	DistanceInfo(Keyframe* f1, Keyframe* f2, float d) : frame1(f1), frame2(f2), distance(d)
-	{
-	}
-
-	bool operator <(DistanceInfo& other)
-	{
-		return distance < other.distance;
-	}
-
-	bool operator >(DistanceInfo& other)
-	{
-		return distance > other.distance;
-	}
-};
-
-
+// Loads all keyframe pointers (aka 'real' objects).
+// These contain filepath, color histogram and cluster number.
 vector<Keyframe*> loadKeyframes(string path)
 {
 	vector<Keyframe*> frames;
@@ -43,7 +24,7 @@ vector<Keyframe*> loadKeyframes(string path)
 	while (it != filesystem::directory_iterator{})
 	{
 		string filename = it->path().string();
-		//cout << filename << '\n';
+		cout << filename << '\n';
 
 		if (filename.find(".jpg") != string::npos)
 		{
@@ -58,7 +39,6 @@ vector<Keyframe*> loadKeyframes(string path)
 
 	return frames;
 }
-
 
 // Returns a sorted list of distances starting with the smallest distance.
 vector<DistanceInfo> calculateAndSortDistances(vector<Keyframe*> frames)
@@ -80,15 +60,35 @@ vector<DistanceInfo> calculateAndSortDistances(vector<Keyframe*> frames)
 	return distance;
 }
 
-int mainKeyframeClustering(int argc, char** argv)
+// Generates a report in HTML.
+void generateReport(map<int, vector<Keyframe*>> clusters)
 {
-	vector<Keyframe*> frames = loadKeyframes("./everest1s/key");
-	cout << "Number frames: " << frames.size() << '\n';
+	stringstream html;
 
-	vector<DistanceInfo> distances = calculateAndSortDistances(frames);
-	cout << "Number combinations nCr(181, 2): " << distances.size() << '\n';
+	auto it = clusters.begin();
+	int cnt = 0;
+	while (it != clusters.end())
+	{
+		html << "<h1>Cluster " << cnt++ << "</h1>";
+		for (int i = 0; i < it->second.size(); ++i)
+		{
+			html << "<img style=\"width:100px; padding:5px;\" src=\"." << it->second[i]->filepath << "\">";
+		}
+		++it;
+	}
 
-	// clustering
+	ofstream myfile;
+	fs::create_directory("reports"); // use mkdir(folderName) for linux
+	myfile.open("reports/report_" + to_string(clusters.size()) + ".html");
+	myfile << html.str();
+	myfile.close();
+}
+
+// Runs the hierarchical clustering based on single-linkage.
+// The distances vector must be sorted ascending by distance, as it will be iterated directly.
+// Reports are generated for all importantClusterSizes.
+void runClustering(vector<Keyframe*> frames, vector<DistanceInfo> distances, vector<int> importantClusterSizes)
+{
 	map<int, vector<Keyframe*>> clusters = map<int, vector<Keyframe*>>();
 
 	// start with single frame per cluster
@@ -97,7 +97,7 @@ int mainKeyframeClustering(int argc, char** argv)
 		frames[i]->clusterNo = i;
 		clusters.insert(pair<int, vector<Keyframe*>>(i, {frames[i]}));
 	}
-	cout << "Initial cluster size: " << clusters.size() << '\n';
+	cout << "Initial number of clusters: " << clusters.size() << '\n';
 
 	// merge the clusters
 	for (int i = 0; i < distances.size(); ++i)
@@ -105,31 +105,50 @@ int mainKeyframeClustering(int argc, char** argv)
 		DistanceInfo nextSmallestPair = distances[i];
 		int newClusterNo = nextSmallestPair.frame1->clusterNo;
 		int oldClusterNo = nextSmallestPair.frame2->clusterNo;
-
 		cout << "dist: " << nextSmallestPair.distance << " ; " << newClusterNo << " : " << oldClusterNo << '\n';
 
 		if (newClusterNo == oldClusterNo)
 			continue;
 
 		// load the lists for the two clusters
-		auto new_it = clusters.find(newClusterNo);
-		auto old_it = clusters.find(oldClusterNo);
+		auto newCluster_it = clusters.find(newClusterNo);
+		auto oldCluster_it = clusters.find(oldClusterNo);
 
-		if (old_it == clusters.end() || new_it == clusters.end())
+		if (oldCluster_it == clusters.end() || newCluster_it == clusters.end())
 			throw runtime_error("Lost cluster entry");
 
 		// move all nodes from old cluster to new cluster
-		for (int i = 0; i < old_it->second.size(); ++i)
+		for (int i = 0; i < oldCluster_it->second.size(); ++i)
 		{
-			old_it->second[i]->clusterNo = newClusterNo;
-			new_it->second.push_back(old_it->second[i]);
+			oldCluster_it->second[i]->clusterNo = newClusterNo;
+			newCluster_it->second.push_back(oldCluster_it->second[i]);
 		}
-		clusters.erase(old_it);
+		clusters.erase(oldCluster_it);
 
-		cout << "New cluster size: " << clusters.size() << '\n';
+		cout << "New number of clusters: " << clusters.size() << '\n';
+
+		if (count(importantClusterSizes.begin(), importantClusterSizes.end(), clusters.size()))
+			generateReport(clusters);
+
+		if (clusters.size() == 1)
+			// end condition reached
+			break;
 	}
 
-	cout << clusters.find(frames[0]->clusterNo)->second.size() << '\n';
+	cout << "Final number of clusters: " << clusters.size()
+		<< " with " << clusters.find(frames[0]->clusterNo)->second.size() << " elements\n";
+}
+
+int mainKeyframeClustering(int argc, char** argv)
+{
+	vector<Keyframe*> frames = loadKeyframes(PATH);
+	cout << "Number frames: " << frames.size() << '\n';
+
+	vector<DistanceInfo> distances = calculateAndSortDistances(frames);
+	cout << "Number combinations nCr(181, 2): " << distances.size() << '\n';
+
+	fs::remove_all("reports");
+	runClustering(frames, distances, {150, 50, 30, 10, 5});
 
 	return 0;
 }

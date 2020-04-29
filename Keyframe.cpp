@@ -5,7 +5,6 @@ using namespace std;
 // A single keyframe used by the clustering algorithm.
 class Keyframe
 {
-
 public:
 	string filepath;
 	vector<int> hist;
@@ -29,5 +28,26 @@ public:
 
 		return std::pow(dist, .5);
 	}
-	
+};
+
+// Contains information about the distance between two keyframes.
+struct DistanceInfo
+{
+	Keyframe* frame1;
+	Keyframe* frame2;
+	double distance;
+
+	DistanceInfo(Keyframe* f1, Keyframe* f2, float d) : frame1(f1), frame2(f2), distance(d)
+	{
+	}
+
+	bool operator <(DistanceInfo& other)
+	{
+		return distance < other.distance;
+	}
+
+	bool operator >(DistanceInfo& other)
+	{
+		return distance > other.distance;
+	}
 };
