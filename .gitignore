@@ -6,7 +6,10 @@ keyframes/
 everest1s/ 
 reports/
 ## Assignment 3
-sports-1m/
+sports-1m/*
+!sports-1m/extract_keyframes.txt
+classification_report.html
+
 venv/
 .vscode/
 

@@ -18,16 +18,14 @@ const vector<string> PATHS = {
 	"./sports-1m/bmx/", "./sports-1m/marathon/", "./sports-1m/parachuting/", "./sports-1m/skateboarding/"
 };
 const float TRAIN_PCT = .9;
-const int HIST_BINS = 64; // 64 or 256 only.
+const int HIST_BINS = 256; // 64 or 256 only.
 
-// todo docu
-// Loads all keyframe pointers (aka 'real' objects).
-// These contain filepath, color histogram and cluster number.
+
+// Loads all keyframe pointers including their histogram and labels from the given path.
 vector<LabeledKeyframe*> loadKeyframes(string path)
 {
 	vector<LabeledKeyframe*> frames;
 
-	int cur = 0;
 	filesystem::directory_iterator it{path};
 	while (it != filesystem::directory_iterator{})
 	{
@@ -43,8 +41,6 @@ vector<LabeledKeyframe*> loadKeyframes(string path)
 				hist = getLargeHistogramFromFrame(img);
 
 			frames.push_back(new LabeledKeyframe(filepath, hist));
-
-			cout << cur++ / 2529.0 << "%\n";
 		}
 
 		++it;
@@ -53,37 +49,71 @@ vector<LabeledKeyframe*> loadKeyframes(string path)
 	return frames;
 }
 
-void printRes(vector<vector<LabeledKeyframe*>> correctClassFrames,
-              vector<vector<LabeledKeyframe*>> incorrectClassFrames);
+// Returns an HTML report for the given classes with 3 examples each.
+string getHtmlForClassFrames(vector<vector<LabeledKeyframe*>> frameClasses)
+{
+	stringstream html;
 
+	for (int i = 0; i < frameClasses.size(); ++i)
+	{
+		auto curClassFrames = frameClasses[i];
+		for (int j = 0; j < min(3, (int)curClassFrames.size()); ++j)
+		{
+			auto curFrame = curClassFrames[j];
+			html << "<img style=\"width:50%; padding:5px;\" src=\"" << curFrame->filepath << "\">\n";
+			html << "<p>From: " << curFrame->labelStr << ", Classified as: " << curFrame->predictedLabelStr << "</p>\n";
+		}
+	}
+
+	return html.str();
+}
+
+// Generates an HTML report for some of the correctly and incorrectly labeled frames.
+void generateHtmlReport(vector<vector<LabeledKeyframe*>> correctClassFrames,
+	vector<vector<LabeledKeyframe*>> incorrectClassFrames)
+{
+	stringstream html;
+
+	html << "<h1>Correctly Classified Frames</h1>";
+	html << getHtmlForClassFrames(correctClassFrames);
+
+	html << "<h1>Incorrectly Classified Frames</h1>";
+	html << getHtmlForClassFrames(incorrectClassFrames);
+
+	ofstream myfile;
+	myfile.open("classification_report.html");
+	myfile << html.str();
+	myfile.close();
+}
 
 int mainSvmClassifier(int argc, char** argv)
 {
 	vector<vector<LabeledKeyframe*>> keyframeClasses;
 	std::default_random_engine rng(std::random_device{}());
+	//auto rng = std::default_random_engine{};
 	int cntTrainData = 0;
 
 	// load all keyframes and shuffle per class
+	int nProcessed = 0;
 	for (int i = 0; i < PATHS.size(); ++i)
 	{
 		string path = PATHS[i];
-
 		vector<LabeledKeyframe*> frames = loadKeyframes(path);
-		cout << "Calculated histograms for " << frames.size() << " frames\n";
+		
+		std::shuffle(std::begin(frames), std::end(frames), rng);
+		keyframeClasses.push_back(frames);
 		cntTrainData += floor(frames.size() * TRAIN_PCT);
 
-		std::shuffle(std::begin(frames), std::end(frames), rng);
-
-		keyframeClasses.push_back(frames);
+		nProcessed += frames.size();
+		cout << "Calculated histograms for " << frames.size() << " frames in " << path << "\n";
+		cout << "Finished " << nProcessed / 2495.0 * 100 << "%\n";
 	}
 
-
 	// Step 2: Set up training data
-	// Remember Mat constructor, type: CV_<bit_depth>(S|U|F)C<number_of_channels>
 	Mat trainingDataMat(cntTrainData, HIST_BINS, CV_32FC1);
 	Mat labelsMat(cntTrainData, 1, CV_32SC1);
 
-	//copy data (NOTE: each image is one row of image with label at the end)
+	// copy data with TRAIN_PCT frames per class
 	int curTrainingNr = 0;
 	for (int classIdx = 0; classIdx < keyframeClasses.size(); ++classIdx)
 	{
@@ -100,17 +130,20 @@ int mainSvmClassifier(int argc, char** argv)
 		}
 	}
 
-	// Step 3: Train the SVM with the first part of data (e.g. 80%)
+	// Step 3: Train the SVM with the first part of data 
+	auto start = std::chrono::high_resolution_clock::now();
 	Ptr<SVM> svm = SVM::create();
 	svm->setType(SVM::C_SVC);
-	svm->setKernel(SVM::LINEAR);
+	svm->setKernel(SVM::LINEAR); // RBF is worse
 	svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 1000, 1e-6));
 	svm->train(trainingDataMat, ROW_SAMPLE, labelsMat);
-	cout << "trained model\n";
+	std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+	cout << "SVM setup and training finished in " << elapsed.count() << " seconds for " << cntTrainData << " elements\n";
 
-	// Step 4: Test the SVM with the second part of data (i.e. 20%)
+	// Step 4: Test the SVM with the second part of data
 	double correct = 0, total = 0;
 	vector<vector<LabeledKeyframe*>> correctClassFrames(4), incorrectClassFrames(4);
+	
 	for (int classIdx = 0; classIdx < keyframeClasses.size(); ++classIdx)
 	{
 		auto curTestClass = keyframeClasses[classIdx];
@@ -140,44 +173,7 @@ int mainSvmClassifier(int argc, char** argv)
 	}
 
 	cout << "Correct: " << correct << " from " << total << " (" << correct / total << ")\n";
-
-	printRes(correctClassFrames, incorrectClassFrames);
+	generateHtmlReport(correctClassFrames, incorrectClassFrames);
 
 	return 0;
-}
-
-string generateHtmlForClassFrames(vector<vector<LabeledKeyframe*>> classFrames)
-{
-	stringstream html;
-
-	for (int i = 0; i < classFrames.size(); ++i)
-	{
-		auto correctFrames = classFrames[i];
-		for (int j = 0; j < min(3, (int)correctFrames.size()); ++j)
-		{
-			auto curFrame = correctFrames[j];
-			html << "<img style=\"width:50%; padding:5px;\" src=\"" << curFrame->filepath << "\">\n";
-			html << "<p>From: " << curFrame->labelStr << ", Classified as: " << curFrame->predictedLabelStr << "</p>\n";
-		}
-	}
-
-	return html.str();
-}
-
-void printRes(vector<vector<LabeledKeyframe*>> correctClassFrames,
-              vector<vector<LabeledKeyframe*>> incorrectClassFrames)
-{
-	stringstream html;
-
-	html << "<h1>Correctly Classified Frames</h1>";
-	html << generateHtmlForClassFrames(correctClassFrames);
-
-	html << "<h1>Incorrectly Classified Frames</h1>";
-	html << generateHtmlForClassFrames(incorrectClassFrames);
-
-	ofstream myfile;
-	//fs::create_directory("reports"); // use mkdir(folderName) for linux
-	myfile.open("classification_report.html");
-	myfile << html.str();
-	myfile.close();
 }

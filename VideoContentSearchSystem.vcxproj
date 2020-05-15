@@ -146,7 +146,6 @@
     <ClCompile Include="ContentDescriptorsUtilities.cpp" />
     <ClCompile Include="FrameComparer.cpp" />
     <ClCompile Include="Keyframe.cpp" />
-    <ClCompile Include="KeyframeClass.cpp" />
     <ClCompile Include="LabeledKeyframe.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="main2.cpp" />

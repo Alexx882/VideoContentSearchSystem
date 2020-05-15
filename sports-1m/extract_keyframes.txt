@@ -1,0 +1,43 @@
+# bmx:
+# https://www.youtube.com/watch?v=wNBhi7_ShN8
+# https://www.youtube.com/watch?v=FHQ1YUB2UlU
+# https://www.youtube.com/watch?v=j4bPEwv88hQ
+
+# parachuting:
+# https://www.youtube.com/watch?v=oe3YUOrrcvo
+# https://www.youtube.com/watch?v=dPih1UdePhg
+# https://www.youtube.com/watch?v=wNs0_EXeuJU
+
+# marathon:
+# https://www.youtube.com/watch?v=qPJYc-_3aXk
+# https://www.youtube.com/watch?v=2ayok1MC0Dw
+# https://www.youtube.com/watch?v=_0feo6y8TCo
+
+# skateboarding:
+# https://www.youtube.com/watch?v=OeGXJOFCZIc
+# https://www.youtube.com/watch?v=diprcID-o10
+# https://www.youtube.com/watch?v=JTqdE9pnUDQ
+
+
+# command for ffmpeg:
+mkdir bmx
+ffmpeg -i '.\bmx (1).mp4' -r 1 bmx\bmx_1_%04d.png
+ffmpeg -i '.\bmx (2).mp4' -r 1 bmx\bmx_2_%04d.png
+ffmpeg -i '.\bmx (3).mp4' -r 1 bmx\bmx_3_%04d.png
+
+mkdir parachuting
+ffmpeg -i '.\parachuting (1).mp4' -r 1 parachuting\parachuting_1_%04d.png
+ffmpeg -i '.\parachuting (2).mp4' -r 1 parachuting\parachuting_2_%04d.png
+ffmpeg -i '.\parachuting (3).mp4' -r 1 parachuting\parachuting_3_%04d.png
+
+mkdir marathon
+ffmpeg -i '.\marathon (1).mp4' -r 1 marathon\marathon_1_%04d.png
+ffmpeg -i '.\marathon (2).mp4' -r 1 marathon\marathon_2_%04d.png
+ffmpeg -i '.\marathon (3).mp4' -r 1 marathon\marathon_3_%04d.png
+
+mkdir skateboarding
+ffmpeg -i '.\skateboarding (1).mp4' -r 1 skateboarding\skateboarding_1_%04d.png
+ffmpeg -i '.\skateboarding (2).mp4' -r 1 skateboarding\skateboarding_2_%04d.png
+ffmpeg -i '.\skateboarding (3).mp4' -r 1 skateboarding\skateboarding_3_%04d.png
+
+pause
