@@ -51,6 +51,9 @@
     <ClCompile Include="LabeledKeyframe.cpp">
       <Filter>Source Files\svm_classifier</Filter>
     </ClCompile>
+    <ClCompile Include="KeyframeClass.cpp">
+      <Filter>Source Files\svm_classifier</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContentDescriptorsUtilities.h">

@@ -11,6 +11,9 @@ public:
 	vector<int> hist;
 	string labelStr;
 	int label;
+	
+	int predictedLabel;
+	string predictedLabelStr;
 
 	LabeledKeyframe(string filepath, vector<int> hist)
 	{
@@ -23,8 +26,14 @@ public:
 		this->label = getLabelId(labelStr);
 	}
 
+	void setPrediction(int label)
+	{
+		this->predictedLabel = label;
+		this->predictedLabelStr = getLabelStr(label);
+	}
+
 	// bmx = 11, parachuting = 479, marathon = 211, skateboarding = 187
-	int getLabelId(string label)
+	static int getLabelId(string label)
 	{
 		if (label == "bmx")
 			return 11;
@@ -39,5 +48,23 @@ public:
 			return 187;
 
 		throw invalid_argument("label is unknown");
+	}
+
+	// bmx = 11, parachuting = 479, marathon = 211, skateboarding = 187
+	static string getLabelStr(int label)
+	{
+		switch (label)
+		{
+		case 11:
+			return "bmx";
+		case 479:
+			return "parachuting";
+		case 211:
+			return "marathon";
+		case 187:
+			return "skateboarding";
+		default:
+			throw invalid_argument("label is unknown");
+		}
 	}
 };
