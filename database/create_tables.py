@@ -8,14 +8,14 @@ def insert_tables():
     """
     create table videos(
         id VARCHAR(255) PRIMARY KEY NOT NULL,
-        filePath VARCHAR(255)
+        filepath VARCHAR(255)
     );
     """,
 
     """
     create table keyframes(
         id VARCHAR(255) PRIMARY KEY NOT NULL,
-        file_path VARCHAR(255),
+        filepath VARCHAR(255),
         video_id VARCHAR(255)
     );
     """,
@@ -40,9 +40,9 @@ def insert_tables():
     cursor = conn.cursor()
     for command in create_table_commands:
         cursor.execute(command)
-    cursor.close()
 
     conn.commit()
+    cursor.close()
     
 
 if __name__ == '__main__':
