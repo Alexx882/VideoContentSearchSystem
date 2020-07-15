@@ -37,9 +37,6 @@ def load_keyframes():
 
 
 if __name__ == '__main__':
-    videos = load_videos()
-    keyframes = load_keyframes()
-
     conn = psycopg2.connect("dbname=postgres user=postgres password=contentsearch")
     cur = conn.cursor()
 
@@ -47,6 +44,9 @@ if __name__ == '__main__':
     if cur.rowcount > 0:
         print("Already found entries, exiting.")
         exit(0)
+
+    videos = load_videos()
+    keyframes = load_keyframes()
 
     for video in videos:
         cur.execute(f"insert into videos(id, filepath) values(\'{video['id']}\', \'{video['path']}\')")
