@@ -1,0 +1,17 @@
+<html>
+    <body>
+        <h1>Results for {{concept}}</h1>
+        <a href="/">Home</a>
+        <br />
+        <br />
+
+        {% for keyframe in keyframes %}
+        <div style="border-style: solid; display: inline-block;" >
+            <a href="/static/{{keyframe[2]}}">
+                <img style="width:50%; padding:5px;" src="/static/{{keyframe[1]}}" alt="{{keyframe[0]}}"/>
+            </a>
+            <p>Classified with confidence {{keyframe[3]}}</p>
+        </div>
+        {% endfor %}
+    </body>
+</html>

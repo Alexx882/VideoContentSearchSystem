@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <script>
+            function updateTextInput(val) {
+                document.getElementById('lconfidenceVal').innerHTML = val + " %"; 
+            }
+
+            window.onload = function(){
+                document.getElementById('fconcept').options = ["lol1", "lol2"]
+            }
+        </script>
+    </head>
+    <body>
+    <h1>Content Search Tool</h1>
+    <h2>By Alexander Lercher</h2>
+    
+    <form action="/results">
+        <label for="fconcept">Concept:</label> <br>
+        <select id="fconcept" name="pconcept">
+            {% for concept in concept_list %}
+            <option value="{{concept[0]}}"> {{concept[1]}} </option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="fconf">Confidence:</label> <br>
+        <input type="range" min="0" max="100" id="fconf" name="pconf" onchange="updateTextInput(this.value);">
+        <label id="lconfidenceVal">50 %</label>
+        <br><br>
+
+        <input type="submit" value="Submit">
+      </form>
+    </body>
+</html>
