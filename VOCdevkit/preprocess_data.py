@@ -16,6 +16,10 @@ def copy_images_to_labeled_folder():
     This script preprocesses the data from VOCdevkit (http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit).
     It moves images from the same class into the corresponding folder for processing with ImageDataGenerator.flow_from_directory.
     '''
+    if os.path.exists(PREPARED_IMAGES_PATH):
+        print("Already found folder, exiting.")
+        return
+
     data = {}
     print("Loading images")
     for path, _, files in os.walk(path_normjoin(BASE_PATH, 'JPEGImages')):
@@ -74,12 +78,11 @@ def import_concepts_in_db():
     # add all concepts with id starting at 0
     for idx in range(len(concepts)):
         cur.execute(f"insert into concepts(id, name) values(\'{idx}\', \'{concepts[idx]}\')")
-    print("Inserted concepts.")
-
     conn.commit()
     cur.close()
+    print("Inserted concepts.")
 
 
 if __name__ == "__main__":
-    # copy_images_to_labeled_folder()
+    copy_images_to_labeled_folder()
     import_concepts_in_db()

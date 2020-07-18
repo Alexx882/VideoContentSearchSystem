@@ -29,7 +29,7 @@ def insert_tables():
 
     """
     create table keyframe_concepts(
-        id VARCHAR(255) PRIMARY KEY NOT NULL,
+        id SERIAL PRIMARY KEY NOT NULL,
         keyframe_id VARCHAR(255),
         concept_id VARCHAR(255),
         confidence DECIMAL(5,4)
@@ -47,3 +47,4 @@ def insert_tables():
 
 if __name__ == '__main__':
     insert_tables()
+    print('Created tables.')
