@@ -9,6 +9,9 @@ reports/
 sports-1m/*
 !sports-1m/extract_keyframes.txt
 classification_report.html
+## Final Project
+VOCdevkit/VOC2012/
+ImageClassifier/voc2012.h5
 
 venv/
 .vscode/
