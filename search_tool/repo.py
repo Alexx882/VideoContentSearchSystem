@@ -1,9 +1,16 @@
 import psycopg2
+import os
 from typing import List, Tuple
+
+# try to load db hostname from docker env
+try:
+    db_hostname = os.environ['CONTENT_SEARCH_DB_HOSTNAME']
+except KeyError: 
+    db_hostname = 'localhost'
 
 class Repo:
     def __init__(self):
-        self.db = psycopg2.connect("dbname=postgres user=postgres password=contentsearch")
+        self.db = psycopg2.connect(f"host={db_hostname} dbname=postgres user=postgres password=contentsearch")
 
     def get_concepts(self) -> List[Tuple]:
         '''Returns a list of concepts as (id, name).'''

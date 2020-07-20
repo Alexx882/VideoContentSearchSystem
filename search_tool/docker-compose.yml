@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  content-search-web:
+    image: alexx882/content-search-web
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - CONTENT_SEARCH_DB_HOSTNAME='content-search-db'
+    depends_on:
+      - content-search-db
+    restart: on-failure # db might not be ready yet -> restart until it is
+
+  content-search-db:
+    image: alexx882/content-search-db
+    build: db
+    ports:
+      - "5432:5432"

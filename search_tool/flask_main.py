@@ -21,4 +21,4 @@ def get_concepts():
     
     return flask.render_template("keyframe_results.html", concept=concept, keyframes=keyframes)
 
-app.run()
+app.run(host='0.0.0.0', port=5000)
