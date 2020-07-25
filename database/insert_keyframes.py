@@ -1,5 +1,6 @@
 import psycopg2
 import os
+from typing import Iterator
 
 
 def path_normjoin(p1: str, p2: str) -> str:
@@ -17,7 +18,7 @@ def load_videos():
     return videos
 
 
-def load_keyframes():
+def load_keyframes() -> Iterator[dict]:
     keyframes = []
     for path, _, files in os.walk('keyframes/v3c1/'):
         for f in files:
@@ -28,12 +29,11 @@ def load_keyframes():
             video_id = path_to_file.split(os.path.normpath('/'))[-2]
             id_ = f"{video_id}_{path_to_file.split(os.path.normpath('/'))[-1].split('.')[0]}"
                             
-            keyframes.append({
+            yield {
                 'id': id_, 
                 'path': path_to_file,
                 'video_id': video_id
-                })
-    return keyframes
+                }
 
 
 if __name__ == '__main__':
