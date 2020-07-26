@@ -22,8 +22,11 @@ def insert_tables():
 
     """
     create table concepts(
-        id VARCHAR(255) PRIMARY KEY NOT NULL,
-        name VARCHAR(255)
+        id VARCHAR(255) NOT NULL,
+        name VARCHAR(255),
+        dataset_name VARCHAR(255),
+        
+	    PRIMARY KEY (id, dataset_name)
     );
     """,
 
@@ -32,7 +35,15 @@ def insert_tables():
         id SERIAL PRIMARY KEY NOT NULL,
         keyframe_id VARCHAR(255),
         concept_id VARCHAR(255),
-        confidence DECIMAL(5,4)
+        confidence DECIMAL(5,4),
+        dataset_name VARCHAR(255)        
+    );
+    """,
+
+    """
+    create table datasets(
+        name VARCHAR(255) PRIMARY KEY NOT NULL,
+        description text
     );
     """
     ]

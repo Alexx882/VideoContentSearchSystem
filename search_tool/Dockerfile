@@ -1,5 +1,5 @@
 ### FLASK APP ###
-FROM python:3 AS web
+FROM python:3
 LABEL maintainer="Alexander Lercher"
 
 RUN apt-get update

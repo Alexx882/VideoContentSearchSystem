@@ -27,13 +27,13 @@ def convert_to_classification_result(keyframe_id, prediction: np.ndarray, confid
     return res
 
 
-def predict_all_keyframes() -> List[Dict]:
+def predict_all_keyframes(model_path:str) -> List[Dict]:
     '''
     Returns a list with prediction results of all keyframes. 
     The results contain keyframe id, concept id and confidence.
     '''
     keyframes = kf_helper.load_keyframes()
-    model = keras.models.load_model('ImageClassifier/voc2012.h5')
+    model = keras.models.load_model(model_path)
 
     keyframe_concepts = []
 
@@ -48,19 +48,32 @@ def predict_all_keyframes() -> List[Dict]:
     return keyframe_concepts
 
 
-if __name__ == '__main__':
+def insert_into_db(dataset_name:str, model_path:str):
+    '''
+    Inserts all classification results based on some neural network into the database.
+    :param dataset_name: The name of the dataset used during training for the network.
+    :param model_path: The path to the pretrained and stored model.
+    '''
     conn = psycopg2.connect("dbname=postgres user=postgres password=contentsearch")
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM keyframe_concepts")
+    cur.execute(f"SELECT * FROM keyframe_concepts WHERE dataset_name = \'{dataset_name}\'")
     if cur.rowcount > 0:
-        print("Already found entries, exiting.")
-        exit(0)
+        print(f"Already found entries for {dataset_name}, exiting.")
+        return
 
-    predictions = predict_all_keyframes()
+    predictions = predict_all_keyframes(model_path)
     for prediction in predictions:
-        cur.execute(f"insert into keyframe_concepts(keyframe_id, concept_id, confidence) " \
-                    f"values(\'{prediction['keyframe_id']}\', \'{prediction['concept_id']}\', \'{prediction['confidence']}\')")    
+        cur.execute(f"insert into keyframe_concepts(keyframe_id, concept_id, confidence, dataset_name) " \
+                    f"values(\'{prediction['keyframe_id']}\', \'{prediction['concept_id']}\', \'{prediction['confidence']}\', \'{dataset_name}\')")    
     conn.commit()
     cur.close()
-    print("Inserted keyframe-concepts.")
+    print(f"Inserted keyframe-concepts for {dataset_name}.")
+
+
+if __name__ == '__main__':
+    insert_into_db('Mixed', 'ImageClassifier/mixed.h5')
+    # insert_into_db('Mixed2', 'ImageClassifier/mixed2.h5')
+    insert_into_db('VOC2012', 'ImageClassifier/voc2012.h5')
+    # insert_into_db('VOC2012_Old', 'ImageClassifier/voc2012_old.h5')
+    insert_into_db('IIC', 'ImageClassifier/iic.h5')

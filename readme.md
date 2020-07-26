@@ -13,13 +13,15 @@ The first dataset was preprocessed in `VOCdevkit/preprocess_data.py` to match th
 A PostgreSQL database was used to store the following information:
 - videos            (id, filepath)
 - keyframes         (id, filepath, video_id)
-- concepts          (id, name)
-- keyframe_concepts (id, keyframe_id, concept_id, confidence)
+- concepts          (id, name, dataset_name)
+- keyframe_concepts (id, keyframe_id, concept_id, confidence, dataset_name)
+- datasets          (name, description)
 
 The tables are created with `database/create_tables.py`. <br />
 Videos and keyframes are inserted with `database/insert_keyframes.py` which expects the videos in the folder *videos/v3c1/* and keyframes in the folder *keyframes/v3c1/*. This structure is achieved by executing `main.c` with the files from the project's task definition in the videos folder. <br />
 The script `database/insert_concepts.py` adds all concepts based on a folder structure or a list into the database in alphabetical order. <br />
-Finally, `database/insert_classified_keyframes.py` classifies the keyframes from the task definition with the trained model and inserts the result into the *keyframe_concepts* table.
+Finally, `database/insert_classified_keyframes.py` classifies the keyframes from the task definition with the trained model and inserts the result into the *keyframe_concepts* table. <br />
+Additionally, a table with dataset information was added to store classifications based on multiple datasets. This info is inserted with `database/insert_dataset_info.py`.
 
 ## Online Search Tool
 The web service's sourcecode to search for concepts in the preprocessed keyframes is located in `search_tool`. For easier execution the Flask app and Postgres database were containerized and uploaded to Docker Hub. <br />

@@ -1,12 +1,21 @@
 <html>
     <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script>
-            function updateTextInput(val) {
+            function updateTextForConfidence(val) {
                 document.getElementById('lconfidenceVal').innerHTML = val + " %"; 
             }
 
+            function updateDatasetSelection(val){
+                $('.option').css('display', 'none')
+                $('.' + val).css('display', 'inline')
+                $('#fconcept').prop('selectedIndex', -1)
+            }
+
             window.onload = function(){
-                document.getElementById('fconcept').options = ["lol1", "lol2"]
+                $('.option').css('display', 'none')
+                $('#fdataset').prop('selectedIndex', -1)
+                $('#fconcept').prop('selectedIndex', -1)
             }
         </script>
     </head>
@@ -15,16 +24,25 @@
     <h2>By Alexander Lercher</h2>
     
     <form action="/results">
+        <label for="fdataset">Training Dataset:</label> <br>
+        <select id="fdataset" name="pdataset" onchange="updateDatasetSelection(this.value);">
+            {% for dataset in dataset_list %}
+            <option value="{{dataset[0]}}"> {{dataset[0]}} </option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+
         <label for="fconcept">Concept:</label> <br>
         <select id="fconcept" name="pconcept">
             {% for concept in concept_list %}
-            <option value="{{concept[0]}}"> {{concept[1]}} </option>
+            <option class="{{concept[2]}} option" value="{{concept[0]}}"> {{concept[1]}} </option>
             {% endfor %}
         </select>
         <br><br>
 
         <label for="fconf">Confidence:</label> <br>
-        <input type="range" min="0" max="100" id="fconf" name="pconf" onchange="updateTextInput(this.value);">
+        <input type="range" min="0" max="100" id="fconf" name="pconf" onchange="updateTextForConfidence(this.value);">
         <label id="lconfidenceVal">50 %</label>
         <br><br>
 
