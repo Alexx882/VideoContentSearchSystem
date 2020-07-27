@@ -153,7 +153,7 @@ COPY public.concepts (id, name, dataset_name) FROM stdin;
 --
 
 COPY public.datasets (name, description) FROM stdin;
-VOC2012	The Visual Object Classes Challenge 2012 dataset contains images of partially rather small objects, is not balanced, and contains multiple labels per image.Only the first label was used as concept.
+VOC2012	The Visual Object Classes Challenge 2012 dataset contains images of partially rather small objects, is not balanced, and contains multiple labels per image. Only the first label was used as concept.
 IIC	The Intel Image Classification dataset contains mainly landscapes but has only six classes in total.
 Mixed	This dataset contains all six classes from IIC and additionally four classes from VOC2012.
 \.

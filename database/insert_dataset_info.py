@@ -3,7 +3,7 @@ import psycopg2
 def get_descriptions():
     return \
         {'VOC2012':
-            'The Visual Object Classes Challenge 2012 dataset contains images of partially rather small objects, is not balanced, and contains multiple labels per image.'
+            'The Visual Object Classes Challenge 2012 dataset contains images of partially rather small objects, is not balanced, and contains multiple labels per image. '
             'Only the first label was used as concept.',
          'IIC': 
             'The Intel Image Classification dataset contains mainly landscapes but has only six classes in total.',
@@ -26,7 +26,7 @@ def insert_descriptions():
 
     conn.commit()
     cursor.close()
-    
+
     print("Inserted datasets.")
 
 

@@ -7,9 +7,13 @@
             }
 
             function updateDatasetSelection(val){
+                // change concept options
                 $('.option').css('display', 'none')
                 $('.' + val).css('display', 'inline')
                 $('#fconcept').prop('selectedIndex', -1)
+
+                // show description
+                $('#dataset_desc').html(datasets.get(val))
             }
 
             window.onload = function(){
@@ -17,6 +21,11 @@
                 $('#fdataset').prop('selectedIndex', -1)
                 $('#fconcept').prop('selectedIndex', -1)
             }
+
+            datasets = new Map()
+            {% for dataset in dataset_list %}
+            datasets.set('{{dataset[0]}}', '{{dataset[1]}}')
+            {% endfor %}
         </script>
     </head>
     <body>
@@ -29,7 +38,8 @@
             {% for dataset in dataset_list %}
             <option value="{{dataset[0]}}"> {{dataset[0]}} </option>
             {% endfor %}
-        </select>
+        </select> <br>
+        <label id="dataset_desc"></label> 
         <br><br>
 
 
@@ -42,7 +52,7 @@
         <br><br>
 
         <label for="fconf">Confidence:</label> <br>
-        <input type="range" min="0" max="100" id="fconf" name="pconf" onchange="updateTextForConfidence(this.value);">
+        <input type="range" min="0" max="100" value="50" id="fconf" name="pconf" oninput="updateTextForConfidence(this.value);">
         <label id="lconfidenceVal">50 %</label>
         <br><br>
 

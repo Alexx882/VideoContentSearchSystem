@@ -13,10 +13,10 @@ RUN pip install -r requirements.txt
 
 ENV CONTENT_SEARCH_DB_HOSTNAME='host.docker.internal'
 
+COPY static/ /app/static/
 COPY flask_main.py /app/
 COPY repo.py /app/
 COPY templates/ /app/templates/
-COPY static/ /app/static/
 RUN chmod a+x flask_main.py
 
 CMD ["python", "./flask_main.py"]
